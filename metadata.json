@@ -1,0 +1,6 @@
+{
+  "name": "Antojo Virtual — Gastronomía Local de Neiva",
+  "description": "Plataforma digital de comercialización y personalización de comidas rápidas artesanales en Neiva con cálculo de envío dinámico y seguimiento de pedidos.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
