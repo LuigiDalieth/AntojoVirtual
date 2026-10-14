@@ -351,10 +351,33 @@ function setupModals() {
     }
 }
 
-// Envío del Checkout
+// Envío del Checkout con Pasarela de Pagos
 function setupCheckout() {
     const form = document.getElementById('checkoutForm');
     if (!form) return;
+
+    // Selector interactivo de pasarelas de pago
+    const methodPills = document.querySelectorAll('.payment-method-pill');
+    const boxNequi = document.getElementById('gatewayBoxNequi');
+    const boxDaviplata = document.getElementById('gatewayBoxDaviplata');
+    const boxTarjeta = document.getElementById('gatewayBoxTarjeta');
+    const boxEfectivo = document.getElementById('gatewayBoxEfectivo');
+
+    methodPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+            methodPills.forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+
+            const radio = pill.querySelector('input[type="radio"]');
+            if (radio) radio.checked = true;
+
+            const method = pill.dataset.method;
+            if (boxNequi) boxNequi.style.display = (method === 'Nequi') ? 'block' : 'none';
+            if (boxDaviplata) boxDaviplata.style.display = (method === 'DaviPlata') ? 'block' : 'none';
+            if (boxTarjeta) boxTarjeta.style.display = (method === 'Tarjeta') ? 'block' : 'none';
+            if (boxEfectivo) boxEfectivo.style.display = (method === 'Efectivo') ? 'block' : 'none';
+        });
+    });
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -366,7 +389,7 @@ function setupCheckout() {
 
         const submitBtn = document.getElementById('confirmOrderBtn');
         submitBtn.disabled = true;
-        submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Registrando Pedido...`;
+        submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Procesando en Pasarela...`;
 
         const subtotal = cart.reduce((acc, item) => acc + item.line_total, 0);
         const deliveryFee = 5500;
@@ -374,13 +397,20 @@ function setupCheckout() {
         const total = subtotal + deliveryFee + serviceFee;
 
         const formData = new FormData(form);
+        const selectedMethod = form.querySelector('input[name="payment_method"]:checked')?.value || 'Nequi';
+
         const orderPayload = {
             customer_name: formData.get('customer_name'),
             customer_phone: formData.get('customer_phone'),
             neighborhood_id: formData.get('neighborhood_id'),
             delivery_address: formData.get('delivery_address'),
-            payment_method: formData.get('payment_method'),
+            payment_method: selectedMethod,
             cash_change_for: formData.get('cash_change_for'),
+            nequi_phone: formData.get('nequi_phone'),
+            daviplata_phone: formData.get('daviplata_phone'),
+            card_holder: formData.get('card_holder'),
+            card_number: formData.get('card_number'),
+            card_cvv: formData.get('card_cvv'),
             subtotal_cop: subtotal,
             service_fee_cop: serviceFee,
             delivery_fee_cop: deliveryFee,
@@ -401,6 +431,11 @@ function setupCheckout() {
             const result = await res.json();
 
             if (result.success) {
+                // Notificar aprobación de pasarela
+                if (result.payment_message) {
+                    alert(`✅ Pago Aprobado: ${result.payment_message}\nReferencia: ${result.transaction_id}`);
+                }
+
                 // Limpiar carrito
                 cart = [];
                 saveCartToStorage();
@@ -408,12 +443,12 @@ function setupCheckout() {
                 // Redirigir al rastreo del pedido
                 window.location.href = `index.php?action=tracking&id=${encodeURIComponent(result.order_id)}`;
             } else {
-                alert(result.message || 'Error al procesar el pedido');
+                alert(`❌ ${result.message || 'Error al procesar el pago con la pasarela'}`);
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = `<i class="fa-solid fa-check"></i> Confirmar Pedido Ahora`;
             }
         } catch (err) {
-            alert('Error de conexión con el servidor XAMPP. Revisa que Apache y MySQL estén corriendo.');
+            alert('Error de conexión con la pasarela o el servidor XAMPP.');
             submitBtn.disabled = false;
             submitBtn.innerHTML = `<i class="fa-solid fa-check"></i> Confirmar Pedido Ahora`;
         }

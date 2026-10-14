@@ -73,11 +73,11 @@ class OrderRepository {
             $sql = "INSERT INTO orders (
                         id, customer_name, customer_phone, neighborhood_id, delivery_address,
                         subtotal_cop, service_fee_cop, delivery_fee_cop, discount_cop, total_cop,
-                        distance_km, payment_method, cash_change_for, status, courier_id
+                        distance_km, payment_method, payment_status, transaction_id, cash_change_for, status, courier_id
                     ) VALUES (
                         :id, :customer_name, :customer_phone, :neighborhood_id, :delivery_address,
                         :subtotal_cop, :service_fee_cop, :delivery_fee_cop, :discount_cop, :total_cop,
-                        :distance_km, :payment_method, :cash_change_for, 'Recibido', :courier_id
+                        :distance_km, :payment_method, :payment_status, :transaction_id, :cash_change_for, 'Recibido', :courier_id
                     )";
 
             $stmt = $this->db->prepare($sql);
@@ -94,6 +94,8 @@ class OrderRepository {
                 ':total_cop' => $data['total_cop'],
                 ':distance_km' => $data['distance_km'] ?? 2.8,
                 ':payment_method' => $data['payment_method'],
+                ':payment_status' => $data['payment_status'] ?? 'Pendiente',
+                ':transaction_id' => $data['transaction_id'] ?? null,
                 ':cash_change_for' => !empty($data['cash_change_for']) ? $data['cash_change_for'] : null,
                 ':courier_id' => $courierId
             ]);

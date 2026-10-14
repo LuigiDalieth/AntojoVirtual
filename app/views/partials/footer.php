@@ -72,17 +72,96 @@
                     <input type="text" name="delivery_address" required placeholder="Ej: Calle 8 # 14-32 Apto 201" value="<?= htmlspecialchars($_SESSION['user']['address_details'] ?? '') ?>">
                 </div>
 
+                <!-- Pasarela de Pagos Selector -->
                 <div class="form-group">
-                    <label>Método de Pago</label>
-                    <select name="payment_method" id="paymentMethod">
-                        <option value="Efectivo">Efectivo contra entrega</option>
-                        <option value="Transferencia Nequi / Daviplata">Transferencia (Nequi / Daviplata)</option>
-                    </select>
+                    <label><i class="fa-solid fa-credit-card"></i> Selecciona cómo pagar</label>
+                    <div class="payment-methods-grid">
+                        <label class="payment-method-pill active" data-method="Nequi">
+                            <input type="radio" name="payment_method" value="Nequi" checked>
+                            <span class="pay-icon nequi"><i class="fa-solid fa-mobile-screen-button"></i></span>
+                            <div class="pay-info">
+                                <strong>Nequi</strong>
+                                <small>Push instantáneo</small>
+                            </div>
+                        </label>
+
+                        <label class="payment-method-pill" data-method="DaviPlata">
+                            <input type="radio" name="payment_method" value="DaviPlata">
+                            <span class="pay-icon daviplata"><i class="fa-solid fa-wallet"></i></span>
+                            <div class="pay-info">
+                                <strong>DaviPlata</strong>
+                                <small>Débito directo</small>
+                            </div>
+                        </label>
+
+                        <label class="payment-method-pill" data-method="Tarjeta">
+                            <input type="radio" name="payment_method" value="Tarjeta">
+                            <span class="pay-icon card"><i class="fa-solid fa-credit-card"></i></span>
+                            <div class="pay-info">
+                                <strong>Tarjeta</strong>
+                                <small>Débito / Crédito</small>
+                            </div>
+                        </label>
+
+                        <label class="payment-method-pill" data-method="Efectivo">
+                            <input type="radio" name="payment_method" value="Efectivo">
+                            <span class="pay-icon cash"><i class="fa-solid fa-money-bill-wave"></i></span>
+                            <div class="pay-info">
+                                <strong>Efectivo</strong>
+                                <small>Contra entrega</small>
+                            </div>
+                        </label>
+                    </div>
                 </div>
 
-                <div class="form-group" id="cashChangeGroup">
-                    <label>¿Con cuánto vas a pagar? (Para cambio)</label>
-                    <input type="number" name="cash_change_for" placeholder="Ej: 50000">
+                <!-- Formulario Dinámico de Pasarela: Nequi -->
+                <div class="gateway-fields-box" id="gatewayBoxNequi">
+                    <div class="gateway-badge"><i class="fa-solid fa-shield-halved"></i> Pasarela Nequi Colombia</div>
+                    <div class="form-group">
+                        <label>Número de celular Nequi (10 dígitos)</label>
+                        <input type="tel" name="nequi_phone" placeholder="300 123 4567" maxlength="10">
+                    </div>
+                    <small class="gateway-hint"><i class="fa-solid fa-bell"></i> Recibirás una notificación push en tu app Nequi para autorizar el cobro.</small>
+                </div>
+
+                <!-- Formulario Dinámico de Pasarela: DaviPlata -->
+                <div class="gateway-fields-box" id="gatewayBoxDaviplata" style="display: none;">
+                    <div class="gateway-badge"><i class="fa-solid fa-shield-halved"></i> Pasarela DaviPlata</div>
+                    <div class="form-group">
+                        <label>Número celular registrado en DaviPlata</label>
+                        <input type="tel" name="daviplata_phone" placeholder="310 987 6543" maxlength="10">
+                    </div>
+                </div>
+
+                <!-- Formulario Dinámico de Pasarela: Tarjeta Débito/Crédito -->
+                <div class="gateway-fields-box" id="gatewayBoxTarjeta" style="display: none;">
+                    <div class="gateway-badge"><i class="fa-solid fa-lock"></i> Pasarela Bancaria Segura (Visa / Mastercard)</div>
+                    <div class="form-group">
+                        <label>Titular de la Tarjeta</label>
+                        <input type="text" name="card_holder" placeholder="Nombre tal como aparece en el plástico">
+                    </div>
+                    <div class="form-group">
+                        <label>Número de Tarjeta</label>
+                        <input type="text" name="card_number" placeholder="4500 0000 0000 0000" maxlength="19">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Vencimiento (MM/AA)</label>
+                            <input type="text" name="card_exp" placeholder="12/28" maxlength="5">
+                        </div>
+                        <div class="form-group">
+                            <label>CVV (Código Trasero)</label>
+                            <input type="password" name="card_cvv" placeholder="123" maxlength="4">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario Dinámico de Pasarela: Efectivo -->
+                <div class="gateway-fields-box" id="gatewayBoxEfectivo" style="display: none;">
+                    <div class="form-group">
+                        <label>¿Con cuánto vas a pagar? (Para que el domiciliario lleve cambio)</label>
+                        <input type="number" name="cash_change_for" placeholder="Ej: 50000">
+                    </div>
                 </div>
 
                 <div class="checkout-breakdown">

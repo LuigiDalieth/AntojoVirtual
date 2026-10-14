@@ -90,7 +90,24 @@
 
                 <div class="totals-summary">
                     <div class="summary-line"><span>Dirección de Entrega:</span> <strong><?= htmlspecialchars($order['delivery_address']) ?> (<?= htmlspecialchars($order['neighborhood_name']) ?>)</strong></div>
-                    <div class="summary-line"><span>Método de Pago:</span> <strong><?= htmlspecialchars($order['payment_method']) ?></strong></div>
+                    <div class="summary-line">
+                        <span>Método y Pasarela:</span> 
+                        <strong>
+                            <?= htmlspecialchars($order['payment_method']) ?>
+                            <?php if (!empty($order['transaction_id'])): ?>
+                                <small style="color: #64748b; font-weight: normal;">(Ref: <?= htmlspecialchars($order['transaction_id']) ?>)</small>
+                            <?php endif; ?>
+                        </strong>
+                    </div>
+                    <?php if (!empty($order['payment_status'])): ?>
+                        <div class="summary-line">
+                            <span>Estado del Pago:</span>
+                            <span class="status-pill <?= $order['payment_status'] === 'Aprobado' ? 'status-entregado' : 'status-preparando' ?>">
+                                <i class="fa-solid <?= $order['payment_status'] === 'Aprobado' ? 'fa-circle-check' : 'fa-clock' ?>"></i>
+                                <?= htmlspecialchars($order['payment_status']) ?>
+                            </span>
+                        </div>
+                    <?php endif; ?>
                     <div class="summary-line"><span>Subtotal:</span> <span>$<?= number_format($order['subtotal_cop'], 0, ',', '.') ?> COP</span></div>
                     <div class="summary-line"><span>Envío:</span> <span>$<?= number_format($order['delivery_fee_cop'], 0, ',', '.') ?> COP</span></div>
                     <div class="summary-line highlight-total"><span>Total Pagado / A Pagar:</span> <strong>$<?= number_format($order['total_cop'], 0, ',', '.') ?> COP</strong></div>
