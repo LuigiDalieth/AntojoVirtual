@@ -20,8 +20,17 @@
                     <span class="badge-order-id">Pedido #<?= htmlspecialchars($order['id']) ?></span>
                     <span class="order-time"><i class="fa-solid fa-clock"></i> <?= date('g:i A - d M Y', strtotime($order['created_at'])) ?></span>
                 </div>
-                <div class="status-indicator status-<?= strtolower(str_replace(' ', '-', $order['status'])) ?>">
-                    <?= htmlspecialchars($order['status']) ?>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <?php
+                    $notificationService = new \App\Services\NotificationService();
+                    $whatsAppLink = $notificationService->generateWhatsAppLink($order);
+                    ?>
+                    <a href="<?= $whatsAppLink ?>" target="_blank" class="btn-whatsapp-order" title="Enviar copia del pedido por WhatsApp">
+                        <i class="fa-brands fa-whatsapp"></i> Recibir en WhatsApp
+                    </a>
+                    <div class="status-indicator status-<?= strtolower(str_replace(' ', '-', $order['status'])) ?>">
+                        <?= htmlspecialchars($order['status']) ?>
+                    </div>
                 </div>
             </div>
 

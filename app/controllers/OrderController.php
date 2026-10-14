@@ -121,4 +121,26 @@ class OrderController extends BaseController {
         $success = $this->orderRepo->updateStatus($orderId, $status);
         $this->json(['success' => $success]);
     }
+
+    public function calculateDelivery(): void {
+        $neighborhoodId = $_GET['neighborhood'] ?? 'altico';
+        $businessId = $_GET['business'] ?? null;
+
+        $calculator = new \App\Services\DeliveryCalculatorService();
+        $result = $calculator->calculateFee($neighborhoodId, $businessId);
+
+        $this->json($result);
+    }
+
+    public function applyCoupon(): void {
+        $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+        $code = $input['code'] ?? '';
+        $subtotal = (int)($input['subtotal'] ?? 0);
+        $deliveryFee = (int)($input['delivery_fee'] ?? 5500);
+
+        $couponService = new \App\Services\CouponService();
+        $result = $couponService->applyCoupon($code, $subtotal, $deliveryFee);
+
+        $this->json($result);
+    }
 }

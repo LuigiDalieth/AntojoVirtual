@@ -2269,3 +2269,80 @@ img {
 .gateway-hint i {
     color: var(--primary);
 }
+
+/* ==========================================================================
+   Coupon Box & WhatsApp Button
+   ========================================================================== */
+.coupon-box {
+    background: #f8fafc;
+    border: 1.5px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.95rem;
+    margin-top: 0.5rem;
+}
+
+.coupon-box label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #334155;
+    display: block;
+    margin-bottom: 0.45rem;
+}
+
+.coupon-input-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.coupon-input-group input {
+    flex: 1;
+    padding: 0.65rem 0.95rem;
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.btn-apply-coupon {
+    background: #0f172a;
+    color: white;
+    border: none;
+    padding: 0.65rem 1.15rem;
+    border-radius: var(--radius-sm);
+    font-weight: 800;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.btn-apply-coupon:hover {
+    background: var(--primary);
+}
+
+.coupon-msg {
+    display: block;
+    margin-top: 0.4rem;
+    font-size: 0.76rem;
+    font-weight: 700;
+}
+
+.btn-whatsapp-order {
+    background: #25d366;
+    color: white;
+    text-decoration: none;
+    padding: 0.45rem 0.95rem;
+    border-radius: var(--radius-full);
+    font-size: 0.82rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+    transition: var(--transition-fast);
+}
+
+.btn-whatsapp-order:hover {
+    background: #1ebd5b;
+    transform: scale(1.05);
+}

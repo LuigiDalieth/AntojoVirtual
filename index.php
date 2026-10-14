@@ -56,6 +56,16 @@ switch ($action) {
         $controller->checkout();
         break;
 
+    case 'calculate_delivery':
+        $controller = new OrderController();
+        $controller->calculateDelivery();
+        break;
+
+    case 'apply_coupon':
+        $controller = new OrderController();
+        $controller->applyCoupon();
+        break;
+
     case 'order_status':
         $controller = new OrderController();
         $controller->updateStatus();

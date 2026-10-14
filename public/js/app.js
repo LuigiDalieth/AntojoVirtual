@@ -331,14 +331,9 @@ function setupModals() {
             document.getElementById('cartDrawer').classList.remove('active');
             document.getElementById('cartBackdrop').classList.remove('active');
 
-            // Calcular total en modal
+            // Calcular total inicial en modal
             const subtotal = cart.reduce((acc, item) => acc + item.line_total, 0);
-            const deliveryFee = 5500;
-            const serviceFee = 1500;
-            const total = subtotal + deliveryFee + serviceFee;
-
-            const totalEl = document.getElementById('finalCheckoutTotal');
-            if (totalEl) totalEl.textContent = formatCOP(total);
+            updateCheckoutTotals(subtotal);
 
             checkoutModal.classList.add('active');
         });
@@ -349,6 +344,107 @@ function setupModals() {
             checkoutModal.classList.remove('active');
         });
     }
+
+    // Escuchar cambio de barrio para recalcular envío dinámicamente
+    const neighborhoodSelect = document.getElementById('deliveryNeighborhood');
+    if (neighborhoodSelect) {
+        neighborhoodSelect.addEventListener('change', async () => {
+            const subtotal = cart.reduce((acc, item) => acc + item.line_total, 0);
+            const nId = neighborhoodSelect.value;
+            try {
+                const res = await fetch(`index.php?action=calculate_delivery&neighborhood=${encodeURIComponent(nId)}`);
+                const data = await res.json();
+                if (data.delivery_fee_cop) {
+                    currentDeliveryFee = data.delivery_fee_cop;
+                    currentDistanceKm = data.distance_km;
+                    const neighborhoodNameEl = document.getElementById('deliveryNeighborhoodLabel');
+                    if (neighborhoodNameEl) neighborhoodNameEl.textContent = data.neighborhood_name;
+                }
+            } catch (e) {
+                currentDeliveryFee = 5500;
+            }
+            updateCheckoutTotals(subtotal);
+        });
+    }
+
+    // Aplicar cupón de descuento
+    const applyCouponBtn = document.getElementById('applyCouponBtn');
+    if (applyCouponBtn) {
+        applyCouponBtn.addEventListener('click', async () => {
+            const codeInput = document.getElementById('couponCodeInput');
+            const msgEl = document.getElementById('couponMessage');
+            const code = codeInput ? codeInput.value.trim() : '';
+            const subtotal = cart.reduce((acc, item) => acc + item.line_total, 0);
+
+            if (!code) {
+                if (msgEl) {
+                    msgEl.style.display = 'block';
+                    msgEl.style.color = '#ef4444';
+                    msgEl.textContent = 'Por favor ingresa un código de cupón.';
+                }
+                return;
+            }
+
+            try {
+                const res = await fetch('index.php?action=apply_coupon', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: code, subtotal: subtotal, delivery_fee: currentDeliveryFee })
+                });
+                const result = await res.json();
+                if (result.valid) {
+                    currentDiscount = result.discount_cop;
+                    appliedCouponCode = result.code;
+                    if (msgEl) {
+                        msgEl.style.display = 'block';
+                        msgEl.style.color = '#16a34a';
+                        msgEl.textContent = result.message;
+                    }
+                } else {
+                    currentDiscount = 0;
+                    appliedCouponCode = null;
+                    if (msgEl) {
+                        msgEl.style.display = 'block';
+                        msgEl.style.color = '#ef4444';
+                        msgEl.textContent = result.message;
+                    }
+                }
+            } catch (e) {
+                currentDiscount = 0;
+            }
+            updateCheckoutTotals(subtotal);
+        });
+    }
+}
+
+let currentDeliveryFee = 4500;
+let currentDistanceKm = 2.5;
+let currentDiscount = 0;
+let appliedCouponCode = null;
+
+function updateCheckoutTotals(subtotal) {
+    const serviceFee = 1500;
+    const finalTotal = Math.max(0, subtotal + currentDeliveryFee + serviceFee - currentDiscount);
+
+    const subtotalLabel = document.getElementById('checkoutSubtotalLabel');
+    const deliveryLabel = document.getElementById('deliveryCostLabel');
+    const discountRow = document.getElementById('discountRow');
+    const discountLabel = document.getElementById('discountLabel');
+    const totalEl = document.getElementById('finalCheckoutTotal');
+
+    if (subtotalLabel) subtotalLabel.textContent = formatCOP(subtotal);
+    if (deliveryLabel) deliveryLabel.textContent = formatCOP(currentDeliveryFee);
+
+    if (discountRow && discountLabel) {
+        if (currentDiscount > 0) {
+            discountRow.style.display = 'flex';
+            discountLabel.textContent = '-' + formatCOP(currentDiscount);
+        } else {
+            discountRow.style.display = 'none';
+        }
+    }
+
+    if (totalEl) totalEl.textContent = formatCOP(finalTotal);
 }
 
 // Envío del Checkout con Pasarela de Pagos
@@ -392,9 +488,8 @@ function setupCheckout() {
         submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Procesando en Pasarela...`;
 
         const subtotal = cart.reduce((acc, item) => acc + item.line_total, 0);
-        const deliveryFee = 5500;
         const serviceFee = 1500;
-        const total = subtotal + deliveryFee + serviceFee;
+        const total = Math.max(0, subtotal + currentDeliveryFee + serviceFee - currentDiscount);
 
         const formData = new FormData(form);
         const selectedMethod = form.querySelector('input[name="payment_method"]:checked')?.value || 'Nequi';
@@ -413,9 +508,10 @@ function setupCheckout() {
             card_cvv: formData.get('card_cvv'),
             subtotal_cop: subtotal,
             service_fee_cop: serviceFee,
-            delivery_fee_cop: deliveryFee,
+            delivery_fee_cop: currentDeliveryFee,
+            discount_cop: currentDiscount,
             total_cop: total,
-            distance_km: 2.8,
+            distance_km: currentDistanceKm,
             items: cart
         };
 

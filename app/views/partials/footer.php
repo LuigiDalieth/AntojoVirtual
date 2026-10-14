@@ -164,8 +164,20 @@
                     </div>
                 </div>
 
+                <!-- Cupón de Descuento -->
+                <div class="coupon-box">
+                    <label><i class="fa-solid fa-ticket"></i> ¿Tienes un cupón de descuento?</label>
+                    <div class="coupon-input-group">
+                        <input type="text" id="couponCodeInput" placeholder="Ej: NEIVAOPITA o ANTOJO5K" style="text-transform: uppercase;">
+                        <button type="button" id="applyCouponBtn" class="btn-apply-coupon">Aplicar</button>
+                    </div>
+                    <small id="couponMessage" class="coupon-msg" style="display: none;"></small>
+                </div>
+
                 <div class="checkout-breakdown">
-                    <div class="breakdown-row"><span>Costo Domicilio:</span><span id="deliveryCostLabel">$5.500 COP</span></div>
+                    <div class="breakdown-row"><span>Subtotal:</span><span id="checkoutSubtotalLabel">$0 COP</span></div>
+                    <div class="breakdown-row"><span>Costo Domicilio (<span id="deliveryNeighborhoodLabel">El Altico</span>):</span><span id="deliveryCostLabel">$4.500 COP</span></div>
+                    <div class="breakdown-row" id="discountRow" style="display: none; color: #16a34a; font-weight: 700;"><span>Descuento aplicado:</span><span id="discountLabel">-$0 COP</span></div>
                     <div class="breakdown-row total-highlight"><span>Total a Pagar:</span><span id="finalCheckoutTotal">$0 COP</span></div>
                 </div>
 
