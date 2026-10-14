@@ -131,6 +131,10 @@ function renderCart() {
 
     if (subtotalEl) subtotalEl.textContent = formatCOP(subtotal);
     if (totalEl) totalEl.textContent = formatCOP(total);
+    const headerCartTotal = document.getElementById('headerCartTotal');
+    if (headerCartTotal) {
+        headerCartTotal.textContent = cart.length === 0 ? '$0' : '$' + parseInt(total).toLocaleString('es-CO');
+    }
     if (checkoutBtn) checkoutBtn.disabled = false;
 
     // Listeners para botones de cantidad y eliminar
